@@ -1,3 +1,11 @@
+# app setup
+
+npm install -g @angular/cli
+
+npm install express body-parser express-jwt jwks-rsa method-override mongoose cors --save
+
+npm install nodemon -g
+
 # MeanRsvp
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.7.3.
@@ -5,6 +13,11 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+## Node API Server
+
+set NODE_ENV=dev
+nodemon server
 
 ## Code scaffolding
 
