@@ -17,6 +17,7 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 ## Node API Server
 
 set NODE_ENV=dev
+
 nodemon server
 
 ## Code scaffolding
