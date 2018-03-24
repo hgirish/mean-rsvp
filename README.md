@@ -6,6 +6,8 @@ npm install express body-parser express-jwt jwks-rsa method-override mongoose co
 
 npm install nodemon -g
 
+npm install auth0-js --save
+
 # MeanRsvp
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.7.3.

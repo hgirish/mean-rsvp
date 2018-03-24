@@ -17,12 +17,15 @@ export class AuthService {
   userProfile: any
   loggedIn: boolean
   loggedIn$ = new BehaviorSubject<boolean>(this.loggedIn)
+  isAdmin: boolean
 
   constructor(private router: Router) {
     const lsProfile = localStorage.getItem('profile')
 
     if (this.tokenValid) {
       this.userProfile = JSON.parse(lsProfile)
+      this.isAdmin = localStorage.getItem('isAdmin') === 'true'
+
       this.setLoggedIn(true)
     } else if (!this.tokenValid && lsProfile) {
       this.logout()
@@ -46,6 +49,8 @@ export class AuthService {
     localStorage.removeItem('authRedirect')
 
     this.userProfile = undefined
+    this.isAdmin = undefined
+
     this.setLoggedIn(false)
 
     this.router.navigate(['/'])
@@ -78,12 +83,20 @@ export class AuthService {
     })
   }
 
+  private _checkAdmin(profile) {
+    const roles = profile[AUTH_CONFIG.NAMESPACE] || []
+    return roles.indexOf('admin') > -1
+  }
+
   private _setSession(authResult, profile) {
     const expiresAt = JSON.stringify(authResult.expiresIn * 1000 + Date.now())
     localStorage.setItem('access_token', authResult.accessToken)
     localStorage.setItem('expires_at', expiresAt)
     localStorage.setItem('profile', JSON.stringify(profile))
     this.userProfile = profile
+
+    this.isAdmin = this._checkAdmin(profile)
+    localStorage.setItem('isAdmin', this.isAdmin.toString())
 
     this.setLoggedIn(true)
   }
