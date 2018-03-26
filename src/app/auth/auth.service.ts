@@ -3,6 +3,7 @@ import { Router } from '@angular/router'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { AUTH_CONFIG } from './auth.config'
 import * as auth0 from 'auth0-js'
+import { createWiresService } from 'selenium-webdriver/firefox'
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,9 @@ export class AuthService {
     this.loggedIn = value
   }
 
-  login() {
+  login(redirect?: string) {
+    const _redirect = redirect ? redirect : this.router.url
+    localStorage.setItem('authRedirect', _redirect)
     this._auth0.authorize()
   }
 
@@ -47,6 +50,7 @@ export class AuthService {
     localStorage.removeItem('profile')
     localStorage.removeItem('expires_at')
     localStorage.removeItem('authRedirect')
+    this._clearRedirect()
 
     this.userProfile = undefined
     this.isAdmin = undefined
@@ -58,6 +62,8 @@ export class AuthService {
 
   get tokenValid(): boolean {
     const expiresAt = JSON.parse(localStorage.getItem('expires_at'))
+    // console.log(`ExpiresAt: ${expiresAt}`)
+
     return Date.now() < expiresAt
   }
 
@@ -67,6 +73,8 @@ export class AuthService {
         window.location.hash = ''
         this._getProfile(authResult)
       } else if (err) {
+        this._clearRedirect()
+        this.router.navigate(['/'])
         console.error(`Error authenticating: ${err.error}`)
       }
       this.router.navigate(['/'])
@@ -77,14 +85,29 @@ export class AuthService {
     this._auth0.client.userInfo(authResult.accessToken, (err, profile) => {
       if (profile) {
         this._setSession(authResult, profile)
+        this.router.navigate([localStorage.getItem('authRedirect') || '/'])
+        this._clearRedirect()
       } else if (err) {
         console.error(`Error authenticating: ${err.error}`)
       }
     })
   }
 
+  private _clearRedirect() {
+    localStorage.removeItem('authRedirect')
+  }
+
   private _checkAdmin(profile) {
-    const roles = profile[AUTH_CONFIG.NAMESPACE] || []
+    console.log(profile)
+    let authConfigNamespace = AUTH_CONFIG.NAMESPACE
+    //  console.log(`authConfigNamespace ${authConfigNamespace}`)
+    let roles = profile[authConfigNamespace] || []
+    if (roles.length < 1) {
+      authConfigNamespace = authConfigNamespace.replace(/\./g, ':')
+      //   console.log(`authConfigNamespace ${authConfigNamespace}`)
+      roles = profile[authConfigNamespace] || []
+    }
+    // console.log(`Roles: ${roles}`)
     return roles.indexOf('admin') > -1
   }
 
@@ -96,6 +119,7 @@ export class AuthService {
     this.userProfile = profile
 
     this.isAdmin = this._checkAdmin(profile)
+    // console.log(`isAdmin: ${this.isAdmin}`)
     localStorage.setItem('isAdmin', this.isAdmin.toString())
 
     this.setLoggedIn(true)

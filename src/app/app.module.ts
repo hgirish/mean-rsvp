@@ -15,7 +15,8 @@ import { LoadingComponent } from './core/loading.component'
 import { AuthService } from './auth/auth.service'
 import { ApiService } from './core/api.service'
 import { UtilsService } from './core/utils.service'
-import { FilterSortService } from './core/filter-sort.service'
+import { FilterSortService } from './core/filter-sort.service';
+import { AdminComponent } from './pages/admin/admin.component'
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { FilterSortService } from './core/filter-sort.service'
     HeaderComponent,
     FooterComponent,
     CallbackComponent,
-    LoadingComponent
+    LoadingComponent,
+    AdminComponent
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [
