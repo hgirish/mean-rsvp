@@ -16,7 +16,10 @@ import { AuthService } from './auth/auth.service'
 import { ApiService } from './core/api.service'
 import { UtilsService } from './core/utils.service'
 import { FilterSortService } from './core/filter-sort.service';
-import { AdminComponent } from './pages/admin/admin.component'
+import { AdminComponent } from './pages/admin/admin.component';
+import { EventComponent } from './pages/event/event.component';
+import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
+import { RsvpComponent } from './pages/event/rsvp/rsvp.component'
 
 @NgModule({
   declarations: [
@@ -26,7 +29,10 @@ import { AdminComponent } from './pages/admin/admin.component'
     FooterComponent,
     CallbackComponent,
     LoadingComponent,
-    AdminComponent
+    AdminComponent,
+    EventComponent,
+    EventDetailComponent,
+    RsvpComponent
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [

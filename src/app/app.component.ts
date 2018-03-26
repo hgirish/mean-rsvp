@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/fromEvent'
 import 'rxjs/add/operator/debounceTime'
+import { Router } from '@angular/router'
 
 import { AuthService } from './auth/auth.service'
 
@@ -16,8 +17,12 @@ export class AppComponent implements OnInit {
   minHeight: string
   private _initWinHeight = 0
 
-  constructor(private auth: AuthService) {
+  constructor(private auth: AuthService, private router: Router) {
     auth.handleAuth()
+
+    if (auth.isAdmin) {
+      router.navigate(['/admin'])
+    }
   }
 
   ngOnInit() {

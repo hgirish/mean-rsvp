@@ -31,7 +31,7 @@ module.exports = function(app, config) {
   const Event = require('./models/Event')
   const Rsvp = require('./models/Rsvp')
 
-  const _eventListProjection = 'title startDateTime endDateTime viewPublic'
+  const _eventListProjection = 'title startDatetime endDatetime viewPublic'
 
   app.get('/api/', (req, res) => {
     res.send('API works')
