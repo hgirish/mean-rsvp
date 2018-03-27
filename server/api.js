@@ -16,8 +16,7 @@ module.exports = function(app, config) {
 
   const adminCheck = (req, res, next) => {
     const roles = req.user[config.NAMESPACE] || []
-    console.log(`adminCheck roles: `)
-    console.log(roles)
+
     if (roles.indexOf('admin') > -1) {
       next()
     } else {
@@ -57,7 +56,6 @@ module.exports = function(app, config) {
   })
 
   app.get('/api/events/admin', jwtCheck, (req, res) => {
-    console.log('inside api/events/admin')
     Event.find({}, _eventListProjection, (err, events) => {
       let eventsArr = []
       if (err) {

@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core'
+import { AuthService } from './../../../auth/auth.service'
+import { UtilsService } from './../../../core/utils.service'
+import { EventModel } from './../../../core/models/event.model'
 
 @Component({
   selector: 'app-event-detail',
@@ -6,10 +9,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./event-detail.component.scss']
 })
 export class EventDetailComponent implements OnInit {
+  @Input() event: EventModel
 
-  constructor() { }
+  constructor(public utils: UtilsService, public auth: AuthService) {}
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

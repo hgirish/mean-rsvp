@@ -18,7 +18,7 @@ export class ApiService {
 
   private get _authHeader(): string {
     const access_token = `Bearer ${localStorage.getItem('access_token')}`
-    console.log(`authHeader access_token: ${access_token}`)
+    // console.log(`authHeader access_token: ${access_token}`)
     return access_token
   }
 

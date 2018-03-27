@@ -62,7 +62,6 @@ export class AuthService {
 
   get tokenValid(): boolean {
     const expiresAt = JSON.parse(localStorage.getItem('expires_at'))
-    // console.log(`ExpiresAt: ${expiresAt}`)
 
     return Date.now() < expiresAt
   }
@@ -86,6 +85,7 @@ export class AuthService {
       if (profile) {
         this._setSession(authResult, profile)
         this.router.navigate([localStorage.getItem('authRedirect') || '/'])
+        this._redirect()
         this._clearRedirect()
       } else if (err) {
         console.error(`Error authenticating: ${err.error}`)
@@ -93,21 +93,32 @@ export class AuthService {
     })
   }
 
+  private _redirect() {
+    const fullRedirect = decodeURI(localStorage.getItem('authRedirect'))
+    const redirectAttr = fullRedirect.split('?tab=')
+    const navArr = [redirectAttr[0] || '/']
+    const tabObj = redirectAttr[1]
+      ? { queryParams: { tab: redirectAttr[1] } }
+      : null
+
+    if (!tabObj) {
+      this.router.navigate(navArr)
+    } else {
+      this.router.navigate(navArr, tabObj)
+    }
+  }
+
   private _clearRedirect() {
     localStorage.removeItem('authRedirect')
   }
 
   private _checkAdmin(profile) {
-    console.log(profile)
     let authConfigNamespace = AUTH_CONFIG.NAMESPACE
-    //  console.log(`authConfigNamespace ${authConfigNamespace}`)
     let roles = profile[authConfigNamespace] || []
     if (roles.length < 1) {
       authConfigNamespace = authConfigNamespace.replace(/\./g, ':')
-      //   console.log(`authConfigNamespace ${authConfigNamespace}`)
       roles = profile[authConfigNamespace] || []
     }
-    // console.log(`Roles: ${roles}`)
     return roles.indexOf('admin') > -1
   }
 
@@ -119,7 +130,6 @@ export class AuthService {
     this.userProfile = profile
 
     this.isAdmin = this._checkAdmin(profile)
-    // console.log(`isAdmin: ${this.isAdmin}`)
     localStorage.setItem('isAdmin', this.isAdmin.toString())
 
     this.setLoggedIn(true)
