@@ -5,11 +5,13 @@ import { UtilsService } from './../../../core/utils.service'
 import { FilterSortService } from './../../../core/filter-sort.service'
 import { RsvpModel } from './../../../core/models/rsvp.model'
 import { Subscription } from 'rxjs/Subscription'
+import { expandCollapse } from './../../../core/expand-collapse-animation'
 
 @Component({
   selector: 'app-rsvp',
   templateUrl: './rsvp.component.html',
-  styleUrls: ['./rsvp.component.scss']
+  styleUrls: ['./rsvp.component.scss'],
+  animations: [expandCollapse]
 })
 export class RsvpComponent implements OnInit, OnDestroy {
   @Input() eventId: string
@@ -23,6 +25,8 @@ export class RsvpComponent implements OnInit, OnDestroy {
   footerTense: string
   showAllRsvps = false
   showRsvpsText = 'View All RSVPs'
+  showEditForm = false
+  editBtnText = 'Edit My RSVP'
 
   constructor(
     public auth: AuthService,
@@ -57,6 +61,18 @@ export class RsvpComponent implements OnInit, OnDestroy {
   toggleShowRsvps() {
     this.showAllRsvps = !this.showAllRsvps
     this.showRsvpsText = this.showAllRsvps ? 'Hide RSVPs' : 'Show All RSVPs'
+  }
+
+  toggleEditForm(setVal?: boolean) {
+    this.showEditForm = setVal !== undefined ? setVal : !this.showEditForm
+    this.editBtnText = this.showEditForm ? 'Cancel Edit' : 'Edit RSVP'
+  }
+
+  onSubmitRsvp(e) {
+    if (e.rsvp) {
+      this.userRsvp = e.rsvp
+      this.toggleEditForm(false)
+    }
   }
 
   private _updateRsvpState() {
