@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http'
 import { DatePipe } from '@angular/common'
 import { AppRoutingModule } from './app-routing.module'
 import { FormsModule } from '@angular/forms'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { AppComponent } from './app.component'
 import { HomeComponent } from './pages/home/home.component'
@@ -15,10 +16,10 @@ import { LoadingComponent } from './core/loading.component'
 import { AuthService } from './auth/auth.service'
 import { ApiService } from './core/api.service'
 import { UtilsService } from './core/utils.service'
-import { FilterSortService } from './core/filter-sort.service';
-import { AdminComponent } from './pages/admin/admin.component';
-import { EventComponent } from './pages/event/event.component';
-import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
+import { FilterSortService } from './core/filter-sort.service'
+import { AdminComponent } from './pages/admin/admin.component'
+import { EventComponent } from './pages/event/event.component'
+import { EventDetailComponent } from './pages/event/event-detail/event-detail.component'
 import { RsvpComponent } from './pages/event/rsvp/rsvp.component'
 
 @NgModule({
@@ -34,7 +35,13 @@ import { RsvpComponent } from './pages/event/rsvp/rsvp.component'
     EventDetailComponent,
     RsvpComponent
   ],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule,
+    BrowserAnimationsModule
+  ],
   providers: [
     Title,
     AuthService,
