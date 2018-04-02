@@ -52,6 +52,14 @@ export class ApiService {
       .pipe(catchError(error => this._handleError(error)))
   }
 
+  getUserEvents$(userId: string): Observable<EventModel[]> {
+    return this.http
+      .get(`${ENV.BASE_API}events/${userId}`, {
+        headers: new HttpHeaders().set('Authorization', this._authHeader)
+      })
+      .pipe(catchError(error => this._handleError(error)))
+  }
+
   postRsvp$(rsvp: RsvpModel): Observable<RsvpModel> {
     return this.http
       .post(`${ENV.BASE_API}rsvp/new`, rsvp, {
@@ -63,6 +71,30 @@ export class ApiService {
   editRsvp$(id: string, rsvp: RsvpModel): Observable<RsvpModel> {
     return this.http
       .put(`${ENV.BASE_API}rsvp/${id}`, rsvp, {
+        headers: new HttpHeaders().set('Authorization', this._authHeader)
+      })
+      .pipe(catchError(error => this._handleError(error)))
+  }
+
+  postEvent$(event: EventModel): Observable<EventModel> {
+    return this.http
+      .post(`${ENV.BASE_API}event/new`, event, {
+        headers: new HttpHeaders().set('Authorization', this._authHeader)
+      })
+      .pipe(catchError(error => this._handleError(error)))
+  }
+
+  editEvent$(id: string, event: EventModel): Observable<EventModel> {
+    return this.http
+      .put(`${ENV.BASE_API}event/${id}`, event, {
+        headers: new HttpHeaders().set('Authorization', this._authHeader)
+      })
+      .pipe(catchError(error => this._handleError(error)))
+  }
+
+  deleteEvent$(id: string): Observable<any> {
+    return this.http
+      .delete(`${ENV.BASE_API}event/${id}`, {
         headers: new HttpHeaders().set('Authorization', this._authHeader)
       })
       .pipe(catchError(error => this._handleError(error)))

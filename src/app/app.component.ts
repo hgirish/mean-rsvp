@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
     auth.handleAuth()
 
     if (auth.isAdmin) {
-      router.navigate(['/admin'])
+      // router.navigate(['/admin'])
     }
   }
 

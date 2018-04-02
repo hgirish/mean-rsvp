@@ -97,6 +97,36 @@ module.exports = function(app, config) {
     })
   })
 
+  app.get('/api/events/:userId', jwtCheck, (req, res) => {
+    Rsvp.find({ userId: req.params.userId }, 'eventId', (err, rsvps) => {
+      const _eventIdsArr = rsvps.map(rsvp => rsvp.eventId)
+      const _rsvpEventsProjection = 'title startDatetime endDatetime'
+      let eventsArr = []
+
+      if (err) {
+        return res.status(500).send({ message: err.message })
+      }
+
+      if (rsvps) {
+        Event.find(
+          { _id: { $in: _eventIdsArr }, startDatetime: { $gte: new Date() } },
+          _rsvpEventsProjection,
+          (err, events) => {
+            if (err) {
+              return res.status(500).send({ message: err.message })
+            }
+            if (events) {
+              events.forEach(event => {
+                eventsArr.push(event)
+              })
+            }
+            res.send(eventsArr)
+          }
+        )
+      }
+    })
+  })
+
   app.post('/api/rsvp/new', jwtCheck, (req, res) => {
     Rsvp.findOne(
       { eventId: req.body.eventId, userId: req.body.userId },
@@ -156,6 +186,94 @@ module.exports = function(app, config) {
         }
 
         res.send(rsvp)
+      })
+    })
+  })
+
+  app.post('/api/event/new', jwtCheck, adminCheck, (req, res) => {
+    Event.findOne(
+      {
+        title: req.body.title,
+        location: req.body.location,
+        startDatetime: req.body.startDatetime
+      },
+      (err, existingEvent) => {
+        if (err) {
+          return res.status(500).send({ message: err.message })
+        }
+        if (existingEvent) {
+          return res.status(409).send({
+            message:
+              'You have already created an event with this title and location, start date'
+          })
+        }
+
+        const event = new Event({
+          title: req.body.title,
+          location: req.body.location,
+          startDatetime: req.body.startDatetime,
+          endDatetime: req.body.endDatetime,
+          description: req.body.description,
+          viewPublic: req.body.viewPublic
+        })
+
+        event.save(err => {
+          if (err) {
+            return res.status(500).send({ message: err.message })
+          }
+          res.send(event)
+        })
+      }
+    )
+  })
+
+  app.put('/api/event/:id', jwtCheck, adminCheck, (req, res) => {
+    Event.findById(req.params.id, (err, event) => {
+      if (err) {
+        return res.status(500).send({ message: err.message })
+      }
+      if (!event) {
+        return res.status(400).send({ message: 'Event not found' })
+      }
+
+      event.title = req.body.title
+      event.location = req.body.location
+      event.startDatetime = req.body.startDatetime
+      event.endDatetime = req.body.endDatetime
+      event.viewPublic = req.body.viewPublic
+      event.description = req.body.description
+
+      event.save(err => {
+        if (err) {
+          return res.status(500).send({ message: err.message })
+        }
+        res.send(event)
+      })
+    })
+  })
+
+  app.delete('/api/event/:id', jwtCheck, adminCheck, (req, res) => {
+    Event.findById(req.params.id, (err, event) => {
+      if (err) {
+        return res.status(500).send({ message: err.message })
+      }
+      if (!event) {
+        return res.status(400).send({ message: 'Event not found' })
+      }
+      Rsvp.find({ eventId: req.params.id }, (err, rsvps) => {
+        if (rsvps) {
+          rsvps.forEach(rsvp => {
+            rsvp.remove()
+          })
+        }
+      })
+      event.remove(err => {
+        if (err) {
+          return res.status(500).send({ message: err.message })
+        }
+        res
+          .status(200)
+          .send({ message: 'Event and RSVPs successfully deleted.' })
       })
     })
   })

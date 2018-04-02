@@ -25,8 +25,8 @@ export class RsvpComponent implements OnInit, OnDestroy {
   footerTense: string
   showAllRsvps = false
   showRsvpsText = 'View All RSVPs'
-  showEditForm = false
-  editBtnText = 'Edit My RSVP'
+  showEditForm: boolean
+  editBtnText: string
 
   constructor(
     public auth: AuthService,
@@ -40,6 +40,7 @@ export class RsvpComponent implements OnInit, OnDestroy {
       ? 'plan to attend this event.'
       : 'attended this event.'
     this._getRSVPs()
+    this.toggleEditForm(false)
   }
 
   private _getRSVPs() {
@@ -65,24 +66,37 @@ export class RsvpComponent implements OnInit, OnDestroy {
 
   toggleEditForm(setVal?: boolean) {
     this.showEditForm = setVal !== undefined ? setVal : !this.showEditForm
-    this.editBtnText = this.showEditForm ? 'Cancel Edit' : 'Edit RSVP'
+    this.editBtnText = this.showEditForm ? 'Cancel Edit' : 'Edit My RSVP'
   }
 
   onSubmitRsvp(e) {
     if (e.rsvp) {
       this.userRsvp = e.rsvp
+      this._updateRsvpState(true)
       this.toggleEditForm(false)
     }
   }
 
-  private _updateRsvpState() {
-    this._setUserRsvpGetAttending()
+  private _updateRsvpState(changed?: boolean) {
+    const _initialUserRsvp = this.rsvps.filter(rsvp => {
+      return rsvp.userId === this.auth.userProfile.sub
+    })[0]
+
+    if (!_initialUserRsvp && this.userRsvp && changed) {
+      this.rsvps.push(this.userRsvp)
+    }
+
+    this._setUserRsvpGetAttending(changed)
   }
-  private _setUserRsvpGetAttending() {
+  private _setUserRsvpGetAttending(changed?: boolean) {
     let guests = 0
     const rsvpArr = this.rsvps.map(rsvp => {
       if (rsvp.userId === this.auth.userProfile.sub) {
-        this.userRsvp = rsvp
+        if (changed) {
+          rsvp = this.userRsvp
+        } else {
+          this.userRsvp = rsvp
+        }
       }
       if (rsvp.attending) {
         guests++

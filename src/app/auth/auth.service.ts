@@ -4,6 +4,11 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { AUTH_CONFIG } from './auth.config'
 import * as auth0 from 'auth0-js'
 import { createWiresService } from 'selenium-webdriver/firefox'
+import { Subscription } from 'rxjs/Subscription'
+import { Observable } from 'rxjs/Observable'
+import { mergeMap } from 'rxjs/operators'
+import 'rxjs/add/observable/of'
+import 'rxjs/add/observable/timer'
 
 @Injectable()
 export class AuthService {
@@ -19,6 +24,7 @@ export class AuthService {
   loggedIn: boolean
   loggedIn$ = new BehaviorSubject<boolean>(this.loggedIn)
   isAdmin: boolean
+  refreshSub: Subscription
 
   constructor(private router: Router) {
     const lsProfile = localStorage.getItem('profile')
@@ -28,6 +34,7 @@ export class AuthService {
       this.isAdmin = localStorage.getItem('isAdmin') === 'true'
 
       this.setLoggedIn(true)
+      this.scheduleRenewal()
     } else if (!this.tokenValid && lsProfile) {
       this.logout()
     }
@@ -44,7 +51,7 @@ export class AuthService {
     this._auth0.authorize()
   }
 
-  logout() {
+  logout(noRedirect?: boolean) {
     // Ensure all auth items removed from localStorage
     localStorage.removeItem('access_token')
     localStorage.removeItem('profile')
@@ -56,8 +63,11 @@ export class AuthService {
     this.isAdmin = undefined
 
     this.setLoggedIn(false)
+    this.unscheduleRenewal()
 
-    this.router.navigate(['/'])
+    if (noRedirect !== true) {
+      this.router.navigate(['/'])
+    }
   }
 
   get tokenValid(): boolean {
@@ -129,9 +139,51 @@ export class AuthService {
     localStorage.setItem('profile', JSON.stringify(profile))
     this.userProfile = profile
 
-    this.isAdmin = this._checkAdmin(profile)
-    localStorage.setItem('isAdmin', this.isAdmin.toString())
+    if (profile) {
+      localStorage.setItem('profile', JSON.stringify(profile))
+      this.userProfile = profile
+      this.isAdmin = this._checkAdmin(profile)
+      localStorage.setItem('isAdmin', this.isAdmin.toString())
+    }
 
     this.setLoggedIn(true)
+
+    this.scheduleRenewal()
+  }
+
+  scheduleRenewal() {
+    if (!this.tokenValid) {
+      return
+    }
+    this.unscheduleRenewal()
+    const expiresAt = JSON.parse(localStorage.getItem('expires_at'))
+    const expiresIn$ = Observable.of(expiresAt).pipe(
+      mergeMap(expires => {
+        const now = Date.now()
+        return Observable.timer(Math.max(1, expires - now))
+      })
+    )
+    this.refreshSub = expiresIn$.subscribe(() => {
+      this.renewToken()
+      this.scheduleRenewal()
+    })
+  }
+
+  unscheduleRenewal() {
+    if (this.refreshSub) {
+      this.refreshSub.unsubscribe()
+    }
+  }
+
+  renewToken() {
+    this._auth0.checkSession({}, (err, authResult) => {
+      if (authResult && authResult.accessToken) {
+        this._setSession(authResult, null)
+      } else if (err) {
+        console.warn(`Could not renew token: ${err.errorDescription}`)
+        this.logout(true)
+        this.login()
+      }
+    })
   }
 }

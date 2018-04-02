@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core'
 import { HttpClientModule } from '@angular/common/http'
 import { DatePipe } from '@angular/common'
 import { AppRoutingModule } from './app-routing.module'
-import { FormsModule } from '@angular/forms'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { AppComponent } from './app.component'
@@ -20,8 +20,14 @@ import { FilterSortService } from './core/filter-sort.service'
 import { AdminComponent } from './pages/admin/admin.component'
 import { EventComponent } from './pages/event/event.component'
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component'
-import { RsvpComponent } from './pages/event/rsvp/rsvp.component';
+import { RsvpComponent } from './pages/event/rsvp/rsvp.component'
 import { RsvpFormComponent } from './pages/event/rsvp/rsvp-form/rsvp-form.component'
+import { SubmittingComponent } from './core/forms/submitting.component'
+import { CreateEventComponent } from './pages/admin/create-event/create-event.component'
+import { UpdateEventComponent } from './pages/admin/update-event/update-event.component'
+import { EventFormComponent } from './pages/admin/event-form/event-form.component';
+import { DeleteEventComponent } from './pages/admin/update-event/delete-event/delete-event.component';
+import { MyRsvpsComponent } from './pages/my-rsvps/my-rsvps.component'
 
 @NgModule({
   declarations: [
@@ -35,13 +41,20 @@ import { RsvpFormComponent } from './pages/event/rsvp/rsvp-form/rsvp-form.compon
     EventComponent,
     EventDetailComponent,
     RsvpComponent,
-    RsvpFormComponent
+    RsvpFormComponent,
+    SubmittingComponent,
+    CreateEventComponent,
+    UpdateEventComponent,
+    EventFormComponent,
+    DeleteEventComponent,
+    MyRsvpsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule
   ],
   providers: [
